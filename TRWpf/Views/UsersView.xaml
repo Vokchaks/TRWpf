@@ -1,0 +1,129 @@
+﻿<mD:UserControl x:Class="TRWpf.Views.UsersView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mD="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+        xmlns:local="clr-namespace:TRWpf"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+        mc:Ignorable="d"
+        xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+        Name="User" >
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UnloadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <mD:UserControl.Resources>
+        <!--mD:CollectionViewSource Source="{Binding Path=UsersView}" x:Key="usersViewSource" >
+            <mD:CollectionViewSource.SortDescriptions>
+                <scm:SortDescription PropertyName="Full_Name"/>
+            </mD:CollectionViewSource.SortDescriptions>
+        </mD:CollectionViewSource-->
+        <!--<mD:ResourceDictionary Source="Dictionary.xaml"/>-->
+        <local:UserGroup x:Key="allGroups"/>
+        <local:PtrBoolConverter x:Key="ptrBoolConverter"/>
+               
+        <mD:DataTemplate x:Key="userTemplate" >
+          
+            <mD:Border Name="border" BorderBrush="Blue" BorderThickness="2" Padding="5" Margin="5" CornerRadius="5">
+                <mD:Grid>
+                    <mD:Grid.ColumnDefinitions>
+                        <mD:ColumnDefinition  Width="150"/>
+                    </mD:Grid.ColumnDefinitions>
+                    <mD:Grid.RowDefinitions>
+                        <mD:RowDefinition/>
+                        <mD:RowDefinition/>
+                        <mD:RowDefinition/>
+                    </mD:Grid.RowDefinitions>
+                    <mD:TextBlock Grid.Column="0" Grid.Row="0"  Name="_full_nameTextBox" Text="{Binding Path=Full_Name}" FontSize="10"/>
+                    <mD:TextBlock Grid.Column="0" Grid.Row="1" Name="_groupTextBox" Text="{Binding Path=Group, Converter={StaticResource allGroups}}" FontSize="10" />
+                    <mD:TextBlock Grid.Column="0" Grid.Row="2" Name="_fnameTextBox" Text="{Binding Path=Position}" FontSize="10"/>
+                </mD:Grid>
+            </mD:Border>
+            <!--DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding }" Value="True">
+                    <Setter TargetName="border" Property="BorderBrush" Value="Red"/>
+                </DataTrigger>
+            </DataTemplate.Triggers-->
+        </mD:DataTemplate>
+
+        <mD:Style x:Key="LBStyle" TargetType="{x:Type ListBoxItem}">
+            <mD:Style.Resources>
+                <mD:SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                             Color="Transparent"/>
+            </mD:Style.Resources>
+        </mD:Style>
+    </mD:UserControl.Resources>
+
+    <mD:Grid ShowGridLines="False">
+
+        <mD:Grid.RowDefinitions>
+            <mD:RowDefinition Height="Auto"/>
+            <mD:RowDefinition/>
+        </mD:Grid.RowDefinitions>
+
+        <mD:DockPanel Grid.Row="0" Background="Gray" DockPanel.Dock="Top">
+            <mD:StackPanel Orientation="Horizontal">
+                <mD:DockPanel Name="TopMenu" Background="Gray"  Margin="5">
+                    <mD:Label  Margin="5" Content="Категория пользователей:" FontWeight="Bold" FontSize="14" Width="Auto" VerticalAlignment="Center" />
+                    <mD:ComboBox x:Name="GroupStatus"
+                        FontSize="14" FontWeight="Bold" Width="200"
+                        ItemsSource="{Binding UserGroupViewModels}"
+                        DisplayMemberPath="Name"
+                        SelectedValue="{Binding SelectedGroup}"
+                        SelectedValuePath="Id" Margin="5"
+                    />
+
+                    <mD:Label  Margin="5" Content="Поиск" FontWeight="Bold" FontSize="14" Width="Auto" VerticalAlignment="Center" />
+                    <mD:TextBox Margin="5" Width="150" 
+                         Text="{Binding Path=PatternUser, UpdateSourceTrigger=PropertyChanged}"/>
+                    <mD:Button Content="Создать" IsEnabled="{Binding CreateButton}"  Margin="5" Command="{Binding CreateUserCommand}"/>
+                    <mD:Button Content="Удалить" Margin="5" Command="{Binding DeleteUserCommand}"
+                              IsEnabled="{Binding Path=SelectedUser, Converter={StaticResource ptrBoolConverter}}" 
+                               />
+                </mD:DockPanel>
+            </mD:StackPanel>
+        </mD:DockPanel>
+
+        <mD:ListBox Name="UsersListBox"  Grid.Row="1" 
+                     ItemsSource="{Binding UsersView, IsAsync=True}"
+                     IsSynchronizedWithCurrentItem="True"
+                     ItemContainerStyle="{StaticResource LBStyle}"
+                     ItemTemplate="{StaticResource userTemplate}" 
+                     SelectionChanged="Users_SelectionChanged"                
+                     SelectedItem="{Binding SelectedUser}" 
+                     mD:ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     mD:ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     >
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding EditUserCommand}" CommandParameter="{Binding SelectedUser}" />
+                </i:EventTrigger>
+                <i:EventTrigger EventName="Loaded">
+                    <i:InvokeCommandAction Command="{Binding ListLoadedCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <mD:ListBox.Style>
+                <mD:Style TargetType="{x:Type mD:ListBox}">
+                    <mD:Style.Triggers>
+                        <mD:Trigger Property="ItemsSource"  Value="{x:Null}">
+                            <mD:Setter Property="Template" Value="{StaticResource WaitControlTemplate}" />
+                        </mD:Trigger>
+                    </mD:Style.Triggers>
+                </mD:Style>
+            </mD:ListBox.Style>
+            <mD:ListBox.ItemsPanel>
+                <mD:ItemsPanelTemplate>
+                    <mD:WrapPanel />
+                </mD:ItemsPanelTemplate>
+            </mD:ListBox.ItemsPanel>
+        </mD:ListBox>
+    </mD:Grid>
+</mD:UserControl>

@@ -1,0 +1,79 @@
+﻿<mD:Window x:Class="TRWpf.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:mD="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+        xmlns:viewmodel="clr-namespace:TRWpf.ViewModels" 
+        xmlns:views="clr-namespace:TRWpf.Views" 
+        xmlns:local="clr-namespace:TRWpf" 
+        xmlns:shell="clr-namespace:Microsoft.Windows.Shell;assembly=Microsoft.Windows.Shell"     
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen" WindowState="Normal" Height="600" Width="1000"
+        Title="TRWpf" >
+
+    <!--<mD:Window.Resources.Resources>
+        <mD:Window.Style>
+            <mD:Style   TargetType="{x:Type mD:Window}">
+                <mD:Setter Property="shell:WindowChrome.WindowChrome">
+                    <mD:Setter.Value>
+                        <shell:WindowChrome/>
+                    </mD:Setter.Value>
+                </mD:Setter>
+                <mD:Setter Property="Template">
+                    <mD:Setter.Value>
+                        <mD:ControlTemplate TargetType="{x:Type mD:Window}">
+                            <mD:Grid>
+
+                                <mD:Button VerticalAlignment="Top" HorizontalAlignment="Center" Margin="2" 
+                                       shell:WindowChrome.IsHitTestVisibleInChrome="True">
+                                    ABOUT
+                                </mD:Button>
+                            </mD:Grid>
+                        </mD:ControlTemplate>
+                    </mD:Setter.Value>
+                </mD:Setter>
+            </mD:Style>
+        </mD:Window.Style>
+    </mD:Window.Resources.Resources>-->
+
+    <mD:Window.DataContext>
+        <viewmodel:MainViewModel />
+    </mD:Window.DataContext>
+
+    <mD:DockPanel DockPanel.Dock="Left">
+        <mD:StatusBar DockPanel.Dock="Bottom">
+            <mD:StatusBarItem>
+                <mD:TextBlock Name="StatusText" Text="{Binding StatusText}"/>
+            </mD:StatusBarItem>
+        </mD:StatusBar>
+        <mD:DockPanel Background="Gray" Width="130">
+            <mD:StackPanel>
+                <mD:Button Content="Пользователи" Command="{Binding UsersViewCommand}" Margin="5,55,5,5"/>
+                <mD:Button Content="Карты" Command="{Binding CardsViewCommand}" Margin="5"/>
+                <mD:ComboBox  Margin="5,300,5,5" 
+                            IsEnabled="{Binding Path=ComPresent}"
+                            ItemsSource="{Binding ComsList}"
+                            SelectedItem="{Binding Path=SelectedCom}" 
+                            SelectedValue="{Binding Path=SelectedCom.Id}"
+                            SelectedValuePath="Id"
+                            DisplayMemberPath="Name" />
+                <mD:Button Content="{Binding BtnConnectLabel}" Command="{Binding ConnectCommand}" 
+                           IsEnabled="{Binding Path=ComPresent}"
+                           Margin="5"/>
+            </mD:StackPanel>
+        </mD:DockPanel>
+        <mD:ContentControl  x:Name="ccName"  Content="{Binding WorkContent, IsAsync=True}">
+            <mD:ContentControl.Style>
+                <mD:Style TargetType="{x:Type mD:ContentControl}">
+                    <mD:Style.Triggers>
+                        <mD:DataTrigger Binding="{Binding WorkContent, IsAsync=True}"   Value="{x:Null}">
+                            <mD:Setter Property="Template" Value="{StaticResource WaitControlTemplate}" />
+                        </mD:DataTrigger>
+                    </mD:Style.Triggers>
+                </mD:Style>
+            </mD:ContentControl.Style>
+        </mD:ContentControl>
+    </mD:DockPanel>
+
+</mD:Window>
